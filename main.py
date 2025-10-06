@@ -1,16 +1,35 @@
-# This is a sample Python script.
+# Import Module
+from tkinter import *
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
+from liner_congurent_generator import lcg;
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+def generate_and_shot():
+    size = 10000
+    plt.hist(lcg(pow(2, 32), 69069, 0, 1, size), bins=50, edgecolor='black', alpha=0.7)
+    plt.title("Histogram LCG generiranih števil")
+    plt.xlabel("Vrednost")
+    plt.ylabel("Freakvenca pojavitve")
+    plt.show()
 
+# create root window
+root = Tk()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# root window title and dimension
+root.title("Praštevila in RSA")
+# Set geometry (widthxheight)
+root.geometry('350x200')
 
+title = Label(root, text="Generiraj praštevilo")
+title.pack()
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+button = Button(root, text='Generate', width=25, command=generate_and_shot)
+button.pack()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+button = Button(root, text='Exit', width=25, command=root.destroy)
+button.pack()
+
+# all widgets will be here
+# Execute Tkinter
+root.mainloop()
