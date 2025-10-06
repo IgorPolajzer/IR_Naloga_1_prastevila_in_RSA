@@ -1,9 +1,15 @@
-import numpy as np
+def normalized_lcg(x, y, m, a, b, ro, size) -> list:
+    r = [0] * size
 
-#Ri+1=aRi+b (mod m),
-def lcg(m, a, b, ro) -> list:
-    size = 10000
-    r = np.zeros(size)
+    r[0] = ro
+
+    # Generate the sequence
+    for i in range(1, size):
+        r[i] = x + ((a * r[i - 1] + b) % m) % (y - x + 1)
+
+    return r
+def lcg(m, a, b, ro, size) -> list:
+    r = [0] * size
 
     r[0] = ro
 
@@ -13,9 +19,8 @@ def lcg(m, a, b, ro) -> list:
 
     return r
 
-# 8 bit number generator
-def random():
+def random(ro):
     x = pow(2, 7)
     y = pow(2, 8) - 1
 
-    return x + lcg(pow(2, 32), 69069, 0, 1).pop() % (y - x + 1)
+    return x + lcg(pow(2, 32), 69069, 0, ro, 10000)[-1] % (y - x + 1)
