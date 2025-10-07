@@ -3,58 +3,70 @@ from matplotlib import pyplot as plt
 from liner_congurent_generator import *
 
 import matplotlib
+
 matplotlib.use('TkAgg')
 
-def generate_number():
-    global number
-    global entry
-    number = random(int(entry.get()))
-    number_var.set("Random number: " + str(number))
 
+def generate_number():
+    global seed, min_val, max_val
+
+    try:
+        numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
+        number_var.set("Random number: " + str(numbers[-1]))
+    except:
+        pass
 
 def generate_and_show():
-    global entry
-    size = 25
-    m = pow(2, 32)
+    global seed, min_val, max_val
 
-    numbers = normalized_lcg(pow(2, 7), pow(2, 8) - 1, m, 69069, 0, int(entry.get()), size)
+    numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
 
-    plt.hist(numbers, bins=50, range=(pow(2, 7), pow(2, 8)), edgecolor='black', alpha=0.7)
+    plt.hist(numbers, bins=50, range=(int(min_val.get()), int(max_val.get())), edgecolor='black', alpha=0.7)
     plt.title("Histogram LCG generiranih števil")
     plt.xlabel("Vrednost")
     plt.ylabel("Frekvenca pojavitve")
     plt.show()
 
 
+
 if __name__ == "__main__":
     root = Tk()
 
     root.title("Praštevila in RSA")
-    root.geometry('300x200')
+    root.geometry('400x380')
 
-    title = Label(root, text="Generiraj praštevilo")
-    title.pack()
+    # Title
+    title = Label(root, text="Generiraj praštevilo", font=("Arial", 14, "bold"))
+    title.pack(pady=10)
 
-    label = Label(root, text="Vnesi seme", font="Courier 12")
-    label.pack()
+    # Input Frame
+    input_frame = Frame(root, padx=10, pady=10)
+    input_frame.pack(fill=X)
 
-    entry = Entry(root, width=40)
-    entry.focus_set()
-    entry.pack()
+    Label(input_frame, text="Vnesi seme", font=("Courier", 12)).grid(row=0, column=0, sticky=W, pady=5)
+    seed = Entry(input_frame, width=30)
+    seed.grid(row=0, column=1, pady=5)
 
+    Label(input_frame, text="Min", font=("Courier", 10)).grid(row=1, column=0, sticky=W, pady=5)
+    min_val = Entry(input_frame, width=30)
+    min_val.grid(row=1, column=1, pady=5)
+
+    Label(input_frame, text="Max", font=("Courier", 10)).grid(row=2, column=0, sticky=W, pady=5)
+    max_val = Entry(input_frame, width=30)
+    max_val.grid(row=2, column=1, pady=5)
+
+    # Buttons Frame
+    button_frame = Frame(root, padx=10, pady=10)
+    button_frame.pack(fill=X)
+
+    Button(button_frame, text='Generate', width=25, command=generate_number).pack(pady=5)
+    Button(button_frame, text='Generate numbers on histogram', width=25, command=generate_and_show).pack(pady=5)
+    Button(button_frame, text='Exit', width=25, command=root.destroy).pack(pady=5)
+
+    # Output Label
     number_var = StringVar()
     number_var.set("Random number: N/A")
-
-    button = Button(root, text='Generate', width=25, command=generate_number)
-    button.pack()
-
-    histogram_button = Button(root, text='Generate numbers on histogram', width=25, command=generate_and_show)
-    histogram_button.pack()
-
-    button = Button(root, text='Exit', width=25, command=root.destroy)
-    button.pack()
-
-    number_label = Label(root, textvariable=number_var, font="Courier 12")  # Bind to StringVar
-    number_label.pack()
+    number_label = Label(root, textvariable=number_var, font=("Courier", 12))
+    number_label.pack(pady=10)
 
     root.mainloop()

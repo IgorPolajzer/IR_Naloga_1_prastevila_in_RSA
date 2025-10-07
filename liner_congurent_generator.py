@@ -19,8 +19,10 @@ def lcg(m, a, b, ro, size) -> list:
 
     return r
 
-def random(ro):
-    x = pow(2, 7)
-    y = pow(2, 8) - 1
+def random(x, y, ro):
+    m = pow(2, 32)
+    a = 69069
+    b = 0
 
-    return x + lcg(pow(2, 32), 69069, 0, ro, 10000)[-1] % (y - x + 1)
+    return normalized_lcg(x, y, m, a, b, ro, 1000000)
+    #return x + (numbers[-1] % (y - x)), numbers
