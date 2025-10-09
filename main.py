@@ -21,7 +21,7 @@ def generate_and_show():
 
     numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
 
-    plt.hist(numbers, bins=50, range=(int(min_val.get()), int(max_val.get())), edgecolor='black', alpha=0.7)
+    plt.hist(numbers, bins=int(max_val.get()), range=(int(min_val.get()), int(max_val.get())), edgecolor='black', alpha=0.7)
     plt.title("Histogram LCG generiranih števil")
     plt.xlabel("Vrednost")
     plt.ylabel("Frekvenca pojavitve")
