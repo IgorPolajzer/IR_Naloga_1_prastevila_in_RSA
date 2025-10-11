@@ -11,6 +11,7 @@ def lcg(m, a, b, ro, size) -> list:
 
 
 def random(x, y, ro):
+    # Super-Duper parameters.
     m = pow(2, 32)
     a = 69069
     b = 0
