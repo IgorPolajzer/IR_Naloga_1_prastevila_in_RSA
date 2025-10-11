@@ -11,22 +11,28 @@ def generate_number():
     global seed, min_val, max_val
 
     try:
-        numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
-        number_var.set("Random number: " + str(numbers[-1]))
-    except:
+        if int(min_val.get()) < int(max_val.get()):
+            numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
+            number_var.set("Random number: " + str(numbers[-1]))
+    except ValueError:
         pass
+
 
 def generate_and_show():
     global seed, min_val, max_val
 
-    numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
+    try:
+        if int(min_val.get()) < int(max_val.get()):
+            numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
 
-    plt.hist(numbers, bins=int(max_val.get()), range=(int(min_val.get()), int(max_val.get())), edgecolor='black', alpha=0.7)
-    plt.title("Histogram LCG generiranih števil")
-    plt.xlabel("Vrednost")
-    plt.ylabel("Frekvenca pojavitve")
-    plt.show()
-
+            plt.hist(numbers, bins=int(max_val.get()), range=(int(min_val.get()), int(max_val.get())),
+                     edgecolor='black', alpha=0.7)
+            plt.title("Histogram LCG generiranih števil")
+            plt.xlabel("Vrednost")
+            plt.ylabel("Frekvenca pojavitve")
+            plt.show()
+    except ValueError:
+        pass
 
 
 if __name__ == "__main__":

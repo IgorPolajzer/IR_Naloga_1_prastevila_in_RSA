@@ -17,6 +17,7 @@ def random(x, y, ro):
 
     numbers = lcg(m, a, b, ro, 1000000)
 
+    # Normalization.
     for i in range(0, len(numbers)):
         numbers[i] = x + numbers[i] % (y - x + 1)
 
