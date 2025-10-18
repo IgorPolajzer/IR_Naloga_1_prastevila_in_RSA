@@ -29,6 +29,13 @@ def random(x, y, ro, size=1000000):
 
 
 def naive_test(p):
+    if p < 2:
+        return p, "COMPOSITE"
+    if p == 2:
+        return p, "PRIME"
+    if p % 2 == 0:
+        return p, "COMPOSITE"
+
     j = 3
     while j <= sqrt(p):
         if p % j == 0:

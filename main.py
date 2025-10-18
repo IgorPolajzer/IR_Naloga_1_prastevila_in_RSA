@@ -118,7 +118,7 @@ if __name__ == "__main__":
     root = Tk()
 
     root.title("Prime number generator")
-    root.geometry('600x700')
+    root.geometry('600x750')
 
     # Title.
     title = Label(root, text="Prime number generator", font=("Arial", 14, "bold"))
