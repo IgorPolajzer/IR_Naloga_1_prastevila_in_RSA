@@ -26,11 +26,11 @@ def generate_and_show():
         if int(min_val.get()) < int(max_val.get()):
             numbers = random(int(min_val.get()), int(max_val.get()), int(seed.get()))
 
-            plt.hist(numbers, bins=int(max_val.get()), range=(int(min_val.get()), int(max_val.get())),
-                     edgecolor='black', alpha=0.7)
-            plt.title("Histogram LCG generiranih števil")
-            plt.xlabel("Vrednost")
-            plt.ylabel("Frekvenca pojavitve")
+            hist, bins = np.histogram(numbers, bins=int(max_val.get()), range=(int(min_val.get()), int(max_val.get())))
+            plt.bar(bins[:-1], hist, width=np.diff(bins), edgecolor='black', alpha=0.7)
+            plt.title("Hystogram of LCG generated numbers")
+            plt.xlabel("Value")
+            plt.ylabel("Frequency")
             plt.show()
     except ValueError:
         result_var.set("Invalid input for 'Seed', 'Min number' or 'Max number'")
@@ -82,33 +82,35 @@ def measure_time_and_plot():
 
     if naive_var.get() and miller_rabin_var.get():
         result_var.set("Only one algortihm at a time can be selected.")
+        return
 
-    elif not naive_var.get() and not miller_rabin_var.get():
+    if not naive_var.get() and not miller_rabin_var.get():
         result_var.set("An algorithm has to be selected.")
+        return
 
-    else:
-        numbers_avg = []
-        time_avg = []
-        for i in range(4, 33):
-            total_time = 0
-            total_numbers = 0
-            iterations = 10
+    numbers_avg = []
+    time_avg = []
 
-            for j in range(1, iterations):
-                start = time.time()
+    for i in range(4, 33):
+        total_time = 0
+        total_numbers = 0
+        iterations = 3
 
-                if naive_var.get():
-                    total_numbers += generate_prime_miller_rabin(i, 10)
-                elif miller_rabin_var.get():
-                    total_numbers += generate_prime_naive(i)
+        for j in range(1, iterations):
+            start = time.time()
 
-                total_time += (time.time() - start)
+            if naive_var.get():
+                total_numbers += generate_prime_naive(i)
+            elif miller_rabin_var.get():
+                total_numbers += generate_prime_miller_rabin(i, 10)
 
-            numbers_avg.append(total_numbers / iterations)
-            time_avg.append(total_time / iterations)
+            total_time += (time.time() - start)
 
-        plt.plot(numbers_avg, time_avg)
-        plt.show()
+        numbers_avg.append(total_numbers / iterations)
+        time_avg.append(total_time / iterations)
+
+    plt.plot(numbers_avg, time_avg)
+    plt.show()
 
 
 

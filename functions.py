@@ -1,29 +1,29 @@
 from math import sqrt
 
+import numpy as np
 
-def lcg(m, a, b, ro, size) -> list:
-    r = [None] * size
+NUMBERS_COUNT = 100
 
+def lcg(m, a, b, ro, size):
+    r = np.zeros(size, dtype=np.uint64)
     r[0] = ro
 
-    # Generate the sequence
-    for i in range(0, size - 1):
-        r[i + 1] = (a * r[i] + b) % m
+    for i in range(1, size):
+        r[i] = (a * r[i - 1] + b) % m
 
     return r
 
 
-def random(x, y, ro):
+def random(x, y, ro, size=1000000):
     # Super-Duper parameters.
     m = pow(2, 32)
     a = 69069
     b = 0
 
-    numbers = lcg(m, a, b, ro, 1000000)
+    numbers = lcg(m, a, b, ro, size)
 
-    # Normalization.
-    for i in range(0, len(numbers)):
-        numbers[i] = x + numbers[i] % (y - x + 1)
+    # Vectorized Normalization.
+    numbers = x + (numbers % (y - x + 1))
 
     return numbers
 
@@ -38,7 +38,7 @@ def naive_test(p):
 
     if j > sqrt(p):
         return p, "PRIME"
-    else :
+    else:
         return p, "COMPOSITE"
 
 
@@ -47,7 +47,7 @@ def generate_prime_naive(n):
     max_value = pow(2, n) - 1
 
     # Generate random number.
-    p = random(0, max_value, 1)[-1]
+    p = random(0, max_value, 1, NUMBERS_COUNT)[-1]
 
     if p % 2 == 0:
         p += 1
@@ -75,7 +75,7 @@ def miller_rabin_test(p, s):
         k += 1
 
     for _ in range(s):
-        a = random(2, p - 2, 1)[-1]
+        a = random(2, p - 2, 1, NUMBERS_COUNT)[-1]
         x = modular_exponentiation(a, d, p)
 
         if x == 1 or x == p - 1:
@@ -96,7 +96,7 @@ def generate_prime_miller_rabin(n, s):
     max_value = pow(2, n) - 1
 
     # Generate random number.
-    p = random(0, max_value, 1)[-1]
+    p = random(0, max_value, 1, NUMBERS_COUNT)[-1]
 
     if p % 2 == 0:
         p += 1
@@ -116,7 +116,7 @@ def modular_exponentiation(a, b, n):
     bodi = int_to_binary_array(b)  # Convert b to binary array
 
     # Iterate from the most significant bit to the least significant bit
-    for i in range(len(bodi), 0):
+    for i in range(len(bodi), -1):
         d = (d * d) % n
         if bodi[i - 1] == 1:
             d = (d * a) % n
