@@ -151,20 +151,37 @@ def generate_key():
 
 
 def encrypt_file():
-    try:
-        file_path = filedialog.askopenfilename()
-        # key_folder_path = filedialog.askdirectory()
-        key_folder_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\keys"
+    file_path = filedialog.askopenfilename()
 
-        if not os.path.exists(key_folder_path + PUBLIC_KEY_FILE_NAME) or not os.path.exists(
-                key_folder_path + PRIVATE_KEY_FILE_NAME):
-            result_var.set(f"Private or public key not present in ${key_folder_path}")
-            return
+    # key_folder_path = filedialog.askdirectory()
+    key_folder_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\keys"
 
-        encrypt_file_with_key(file_path, key_folder_path)
-        result_var.set(f"File: '{file_path}' was encrypted.")
-    except ValueError:
-        result_var.set("Invalid input for 'Max number of bits''")
+    if not os.path.exists(key_folder_path + PUBLIC_KEY_FILE_NAME) or not os.path.exists(
+            key_folder_path + PRIVATE_KEY_FILE_NAME):
+        result_var.set(f"Private or public key not present in ${key_folder_path}")
+        return
+
+    encrypt_file_with_key(file_path, key_folder_path)
+    result_var.set(f"File: '{file_path}' was encrypted.")
+
+def decrypt_file():
+    # file_path = filedialog.askopenfilename()
+    file_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\encryptet_files\enc.bin"
+
+    # key_folder_path = filedialog.askdirectory()
+    key_folder_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\keys"
+
+    if not os.path.exists(key_folder_path + PUBLIC_KEY_FILE_NAME) or not os.path.exists(
+            key_folder_path + PRIVATE_KEY_FILE_NAME):
+        result_var.set(f"Private or public key not present in ${key_folder_path}")
+        return
+
+    if not os.path.exists(file_path):
+        result_var.set(f"The file you are trying to decode doesnt exist")
+        return
+
+    decrypt_file_with_key(file_path, key_folder_path)
+    result_var.set(f"File: '{file_path}' was decrypted.")
 
 
 if __name__ == "__main__":
@@ -223,6 +240,7 @@ if __name__ == "__main__":
     Button(button_frame, text='Generate Miller-Rabin', width=25, command=generate_miller_rabin).pack(pady=5)
     Button(button_frame, text='Generate Key', width=25, command=generate_key).pack(pady=5)
     Button(button_frame, text='Encrypt file', width=25, command=encrypt_file).pack(pady=5)
+    Button(button_frame, text='Decrypt file', width=25, command=decrypt_file).pack(pady=5)
 
     # Measure Time and Plot Frame.
     plot_frame = Frame(button_frame, padx=10, pady=10)

@@ -126,26 +126,49 @@ def encrypt_and_write_file(file_path: str, p_key):
     M = floor(log(n, 2))
     N = ceil(log(n, 2))
 
+    # Convert bits to bytes
+    N_bytes = ceil(N / 8)
+
     chunks = read_file_in_binary(file_path, M)
 
     with open(
             r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\encryptet_files\enc.bin",
             "wb") as binary_file:
         for chunk in chunks:
-            c = pow(chunk, e,
-                    n)  # big_modular_exponantion(int(chunk), int(e),int(n))  # TODO Fix modular_exponentiation(int(a), int(d), int(p))
-            binary_file.write(c.to_bytes(N, 'big'))
+            c = pow(chunk, e, n)
+            binary_file.write(c.to_bytes(N_bytes, 'big'))
 
 
 def decrypt_and_write_file(file_path: str, s_key):
     d, n = s_key
+
+    M = floor(log(n, 2))
     N = ceil(log(n, 2))
+
+    # Convert bits to bytes
+    M_bytes = ceil(M / 8)
+    N_bytes = ceil(N / 8)
+
     m_chunks = []
 
-    with open(r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\encryptet_files\enc.bin","rb") as binary_file:
-        c = int.from_bytes(binary_file.read())
-        m_chunks.append(pow(c, d, n))
+    with open(file_path, "rb") as binary_file:
+        while True:
+            chunk_bytes = binary_file.read(N_bytes)
+            if not chunk_bytes:
+                break
 
-    with open(r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\decrypted_files\msg.png", "wb") as file:
-        for m in m_chunks:
-            file.write(m.to_bytes(N, 'big'))
+            c = int.from_bytes(chunk_bytes, 'big')
+            m = pow(c, d, n)
+            m_chunks.append(m)
+
+    # Write decrypted chunks back
+    with open(
+            r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\decrypted_files\msg.png",
+            "wb") as file:
+        for i, m in enumerate(m_chunks):
+            # Handle last chunk (might be shorter)
+            if i == len(m_chunks) - 1:
+                actual_bytes = max(1, (m.bit_length() + 7) // 8)
+                file.write(m.to_bytes(actual_bytes, 'big'))
+            else:
+                file.write(m.to_bytes(M_bytes, 'big'))

@@ -189,9 +189,11 @@ def generate_and_store_key(n, file_path, algorithm: Algorithm):
 
 def encrypt_file_with_key(file_path, key_path):
     p_key = read_key_from_file(key_path + PUBLIC_KEY_FILE_NAME)
-    s_key = read_key_from_file(key_path + PRIVATE_KEY_FILE_NAME)
-
     encrypt_and_write_file(file_path, p_key)
+
+
+def decrypt_file_with_key(file_path, key_path):
+    s_key = read_key_from_file(key_path + PRIVATE_KEY_FILE_NAME)
     decrypt_and_write_file(file_path, s_key)
 
 
