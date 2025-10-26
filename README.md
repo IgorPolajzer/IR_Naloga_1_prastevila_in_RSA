@@ -50,8 +50,7 @@ zgeneriranega praštevila, medtem ko pristop z Miller-Rabin testiranjem bolj ali
 
 ## Naloga 1.2
 
-V implementaicji naloge 1.2 se je podprla implementacija kriptiranja in dekriptiranja datotek z algoritmom RSA,
-v kateri sem za ustvarjanje ključev uporabljal generator praštevil ustvarjen v nalogi 1.1.
+V implementaciji naloge 1.2 je bila podprta funkcionalnost za šifriranje in dešifriranje datotek z algoritmom RSA. Pri tem je bil za generiranje ključev uporabljen generator praštevil, razvit v nalogi 1.1.
 
 **Posodobljen GUI**
 <div style="display: flex; justify-content: space-between;">
@@ -62,29 +61,27 @@ v kateri sem za ustvarjanje ključev uporabljal generator praštevil ustvarjen v
 
 ### Generiranje ključev
 
-**Primerjava generiranja ključev generiranjem ključev** z različnima metodama generiranja praštevil 
-(ključi so bili generirani v naslednjih bitnih velikostih: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]).
+**Primerjava generiranja ključev** z uporabo različnih metod za generiranje praštevil. Ključi so bili generirani v naslednjih bitnih velikostih: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].
 - Naivna metoda
 <div style="display: flex; justify-content: space-between;">
       <img src="images/naive_key_generation.png" alt="Comparison Graph" style="width: 45%;"/>
 </div>
 
-- Miller rabin
+- Miller-Rabin metoda
 <div style="display: flex; justify-content: space-between;">
       <img src="images/miller_rabin_key_generation.png" alt="Comparison Graph" style="width: 45%;"/>
 </div>
 
-- Primerjava obeh na enem grafu
+- Primerjava obeh metod na enem grafu
 <div style="display: flex; justify-content: space-between;">
       <img src="images/comparison_key_generation.png" alt="Comparison Graph" style="width: 45%;"/>
 </div>
 
 ---
 
-## Enkripcija/Dekripcija datotek
+## Šifriranje/Dešifriranje datotek
 
-**Primerjava časa izvajanja enkripcije in dekripcije** poljubnega n bitnega števila (n je bil na intervalu [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-ob enem pa je na RSA ključ bil tudi n biten). Vsako iteracijo se je izvedlo 5 enkripcij in dekripcij z RSA algoritmom in se v graf vstavilo povprečje za n.
+**Primerjava časa izvajanja šifriranja in dešifriranja** poljubnega n-bitnega števila (n je bil na intervalu [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]). RSA ključ je bil prav tako n-bitni. Za vsak n je bilo izvedenih 5 ponovitev šifriranja in dešifriranja z algoritmom RSA, nato pa je bilo v graf vneseno povprečje za posamezen n.
 
 <div style="display: flex; justify-content: space-between;">
       <img src="images/ecryption_decryption_comparison.png" alt="Comparison Graph" style="width: 45%;"/>
