@@ -179,35 +179,41 @@ if __name__ == "__main__":
 
     # Input Frame.
     input_frame = Frame(root, padx=10, pady=10)
-    input_frame.pack(fill=X, anchor="center")
+    input_frame.pack(anchor="center")
 
-    Label(input_frame, text="Seed: ", font=("Courier", 10)).grid(row=1, column=0, sticky=W, pady=10)
+    # Configure grid columns to center content
+    input_frame.grid_columnconfigure(0, weight=0)
+    input_frame.grid_columnconfigure(1, weight=0, minsize=20)
+    input_frame.grid_columnconfigure(2, weight=0)
+
+    Label(input_frame, text="Seed: ", font=("Courier", 10)).grid(row=1, column=0, sticky=E, pady=10, padx=(0, 5))
     seed = Entry(input_frame, width=30)
-    seed.grid(row=1, column=2, pady=5)
+    seed.grid(row=1, column=2, pady=5, sticky=W)
 
-    Label(input_frame, text="Min number: ", font=("Courier", 10)).grid(row=2, column=0, sticky=W, pady=10)
+    Label(input_frame, text="Min number: ", font=("Courier", 10)).grid(row=2, column=0, sticky=E, pady=10, padx=(0, 5))
     min_val = Entry(input_frame, width=30)
-    min_val.grid(row=2, column=2, pady=5)
+    min_val.grid(row=2, column=2, pady=5, sticky=W)
 
-    Label(input_frame, text="Max number: ", font=("Courier", 10)).grid(row=3, column=0, sticky=W, pady=10)
+    Label(input_frame, text="Max number: ", font=("Courier", 10)).grid(row=3, column=0, sticky=E, pady=10, padx=(0, 5))
     max_val = Entry(input_frame, width=30)
-    max_val.grid(row=3, column=2, pady=5)
+    max_val.grid(row=3, column=2, pady=5, sticky=W)
 
-    Label(input_frame, text="Number: ", font=("Courier", 10)).grid(row=4, column=0, sticky=W, pady=10)
+    Label(input_frame, text="Number: ", font=("Courier", 10)).grid(row=4, column=0, sticky=E, pady=10, padx=(0, 5))
     p_input = Entry(input_frame, width=30)
-    p_input.grid(row=4, column=2, pady=5)
+    p_input.grid(row=4, column=2, pady=5, sticky=W)
 
-    Label(input_frame, text="Reliability: ", font=("Courier", 10)).grid(row=5, column=0, sticky=W, pady=10)
+    Label(input_frame, text="Reliability: ", font=("Courier", 10)).grid(row=5, column=0, sticky=E, pady=10, padx=(0, 5))
     s_input = Entry(input_frame, width=30)
-    s_input.grid(row=5, column=2, pady=5)
+    s_input.grid(row=5, column=2, pady=5, sticky=W)
 
-    Label(input_frame, text="Max number of bits: ", font=("Courier", 10)).grid(row=6, column=0, sticky=W, pady=10)
+    Label(input_frame, text="Max number of bits: ", font=("Courier", 10)).grid(row=6, column=0, sticky=E, pady=10,
+                                                                               padx=(0, 5))
     n_input = Entry(input_frame, width=30)
-    n_input.grid(row=6, column=2, pady=5)
+    n_input.grid(row=6, column=2, pady=5, sticky=W)
 
     # Buttons Frame.
     button_frame = Frame(root, padx=10, pady=10)
-    button_frame.pack(fill=X, anchor="center")
+    button_frame.pack(anchor="center")
 
     Button(button_frame, text='Generate Random Number', width=25, command=generate_number).pack(pady=5)
     Button(button_frame, text='Generate Histogram', width=25, command=generate_and_show).pack(pady=5)
@@ -226,15 +232,19 @@ if __name__ == "__main__":
     miller_rabin_var = IntVar()
 
     Button(plot_frame, text='Measure Time and Plot', width=25, command=measure_time_and_plot).pack(pady=5)
-    Checkbutton(plot_frame, text="Naive", variable=naive_var).pack(side=LEFT, padx=5)
-    Checkbutton(plot_frame, text="Miller-Rabin", variable=miller_rabin_var).pack(side=LEFT, padx=5)
+
+    # Checkbox frame to center checkboxes
+    checkbox_frame = Frame(plot_frame)
+    checkbox_frame.pack()
+    Checkbutton(checkbox_frame, text="Naive", variable=naive_var).pack(side=LEFT, padx=5)
+    Checkbutton(checkbox_frame, text="Miller-Rabin", variable=miller_rabin_var).pack(side=LEFT, padx=5)
 
     Button(button_frame, text='Exit', width=25, command=root.destroy).pack(pady=5)
 
     # Output Label
     result_var = StringVar()
     result_var.set("Result: N/A")
-    result_label = Label(root, textvariable=result_var, font=("Courier", 12), wraplength=300, anchor="w")
-    result_label.pack(fill="x", expand=True, padx=10, pady=10, anchor="center")
+    result_label = Label(root, textvariable=result_var, font=("Courier", 12), wraplength=500, justify="center")
+    result_label.pack(padx=10, pady=10, anchor="center")
 
     root.mainloop()
