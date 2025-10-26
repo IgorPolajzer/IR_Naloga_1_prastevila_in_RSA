@@ -1,8 +1,9 @@
+import os
 from tkinter import *
 from tkinter import filedialog
 
 from matplotlib import pyplot as plt
-from functions import *
+from cryptography import *
 import time
 
 import matplotlib
@@ -68,6 +69,7 @@ def generate_naive():
     except ValueError:
         result_var.set("Invalid input for 'Max number of bits'")
 
+
 def generate_miller_rabin():
     global n_input, s_input
     try:
@@ -114,15 +116,53 @@ def measure_time_and_plot():
     plt.plot(numbers_avg, time_avg)
     plt.show()
 
+
 def generate_key():
-    global n_input
+    global n_input, naive_var, miller_rabin_var
 
     try:
-        filename = filedialog.askdirectory()
+        # file_path = filedialog.askdirectory()
+        file_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\keys"
 
         n = int(n_input.get())
-        generate_and_store_key(n, filename)
-        result_var.set(f"Key stored in file: {filename}")
+
+        if n > 15:
+            result_var.set("The maximum number of bits for keys is 15.")
+            return
+
+        if naive_var.get() and miller_rabin_var.get():
+            result_var.set("Only one algortihm at a time can be selected.")
+            return
+
+        if not naive_var.get() and not miller_rabin_var.get():
+            result_var.set("An algorithm has to be selected.")
+            return
+
+        if naive_var.get():
+            generate_and_store_key(n, file_path, Algorithm.NAIVE)
+            result_var.set(f"Keys generated with Naive method stored in folder: {file_path}")
+
+        elif miller_rabin_var.get():
+            generate_and_store_key(n, file_path, Algorithm.MILLER_RABIN)
+            result_var.set(f"Keys generated with Miller-Rabin method and stored in folder: {file_path}")
+
+    except ValueError:
+        result_var.set("Invalid input for 'Max number of bits''")
+
+
+def encrypt_file():
+    try:
+        file_path = filedialog.askopenfilename()
+        # key_folder_path = filedialog.askdirectory()
+        key_folder_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\keys"
+
+        if not os.path.exists(key_folder_path + PUBLIC_KEY_FILE_NAME) or not os.path.exists(
+                key_folder_path + PRIVATE_KEY_FILE_NAME):
+            result_var.set(f"Private or public key not present in ${key_folder_path}")
+            return
+
+        encrypt_file_with_key(file_path, key_folder_path)
+        result_var.set(f"File: '{file_path}' was encrypted.")
     except ValueError:
         result_var.set("Invalid input for 'Max number of bits''")
 
@@ -131,15 +171,15 @@ if __name__ == "__main__":
     root = Tk()
 
     root.title("Prime number generator")
-    root.geometry('600x750')
+    root.geometry('700x900')
 
     # Title.
     title = Label(root, text="Prime number generator", font=("Arial", 14, "bold"))
-    title.pack(pady=10)
+    title.pack(pady=10, anchor="center")
 
     # Input Frame.
     input_frame = Frame(root, padx=10, pady=10)
-    input_frame.pack(fill=X)
+    input_frame.pack(fill=X, anchor="center")
 
     Label(input_frame, text="Seed: ", font=("Courier", 10)).grid(row=1, column=0, sticky=W, pady=10)
     seed = Entry(input_frame, width=30)
@@ -167,7 +207,7 @@ if __name__ == "__main__":
 
     # Buttons Frame.
     button_frame = Frame(root, padx=10, pady=10)
-    button_frame.pack(fill=X)
+    button_frame.pack(fill=X, anchor="center")
 
     Button(button_frame, text='Generate Random Number', width=25, command=generate_number).pack(pady=5)
     Button(button_frame, text='Generate Histogram', width=25, command=generate_and_show).pack(pady=5)
@@ -176,10 +216,11 @@ if __name__ == "__main__":
     Button(button_frame, text='Generate Naive', width=25, command=generate_naive).pack(pady=5)
     Button(button_frame, text='Generate Miller-Rabin', width=25, command=generate_miller_rabin).pack(pady=5)
     Button(button_frame, text='Generate Key', width=25, command=generate_key).pack(pady=5)
+    Button(button_frame, text='Encrypt file', width=25, command=encrypt_file).pack(pady=5)
 
     # Measure Time and Plot Frame.
     plot_frame = Frame(button_frame, padx=10, pady=10)
-    plot_frame.pack(pady=5)
+    plot_frame.pack(pady=5, anchor="center")
 
     naive_var = IntVar()
     miller_rabin_var = IntVar()
@@ -193,7 +234,7 @@ if __name__ == "__main__":
     # Output Label
     result_var = StringVar()
     result_var.set("Result: N/A")
-    result_label = Label(root, textvariable=result_var, font=("Courier", 12))
-    result_label.pack(pady=10)
+    result_label = Label(root, textvariable=result_var, font=("Courier", 12), wraplength=300, anchor="w")
+    result_label.pack(fill="x", expand=True, padx=10, pady=10, anchor="center")
 
     root.mainloop()

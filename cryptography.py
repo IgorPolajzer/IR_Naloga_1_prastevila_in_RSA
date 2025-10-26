@@ -2,7 +2,12 @@ from math import sqrt, gcd
 
 import numpy as np
 
+from util import modular_linear_equation_solver, write_key_to_file, read_key_from_file, big_modular_exponantion, \
+    Algorithm
+
 NUMBERS_COUNT = 100
+PUBLIC_KEY_FILE_NAME = "privkey.txt"
+PRIVATE_KEY_FILE_NAME = "pubkey.txt"
 
 
 def lcg(m, a, b, ro, size):
@@ -50,12 +55,12 @@ def naive_test(p):
         return p, "COMPOSITE"
 
 
-def generate_prime_naive(n):
+def generate_prime_naive(n, ro=1):
     # Calculate the maximum value for an n-bit number
     max_value = pow(2, n) - 1
 
     # Generate random number.
-    p = random(0, max_value, 1, NUMBERS_COUNT)[-1]
+    p = random(0, max_value, ro, NUMBERS_COUNT)[-1]
 
     if p % 2 == 0:
         p += 1
@@ -85,7 +90,7 @@ def miller_rabin_test(p, s, ro):
     seed = ro
     for i in range(s):
         a = random(2, p - 2, seed, NUMBERS_COUNT)[-1]
-        x = pow(int(a), int(d), int(p))  # modular_exponentiation(int(a), int(d), int(p))
+        x = pow(int(a), int(d), int(p))  # TODO Fix modular_exponentiation(int(a), int(d), int(p))
 
         if x == 1 or x == p - 1:
             seed += 1
@@ -136,65 +141,24 @@ def generate_prime_miller_rabin_interval(s, min, max, ro=1):
         p += 2
 
 
-def modular_exponentiation(a, b, n):
-    d = 1
-    bodi = int_to_binary_array(b)  # Convert b to binary array
-
-    # Iterate from the most significant bit to the least significant bit
-    for i in range(len(bodi), -1):
-        d = (d * d) % n
-        if bodi[i - 1] == 1:
-            d = (d * a) % n
-
-    return d
-
-
-def int_to_binary_array(integer: int) -> list:
-    integer = int(integer)
-    # Convert to binary and remove the '0b' prefix
-    binary_string = bin(integer)[2:]
-
-    # Use list comprehension to create the bit array
-    return [int(bit) for bit in binary_string]
-
-
-def extended_euclid(a, b):
-    if b == 0:
-        return a, 1, 0
-    else:
-        d, x, y = extended_euclid(b, a % b)
-
-        # n_d, n_x, n_y.
-        return d, y, x - (a // b) * y
-
-
-def modular_linear_equation_solver(a, b, n):
-    d, x, y = extended_euclid(a, n)
-
-    if b % d == 0:
-        xo = (x * (b // d)) % n
-
-        solutions = []
-        for i in range(d):
-            solution = (xo + i * (n // d)) % n
-            solutions.append(solution)
-
-        return solutions
-    else:
-        return None
-
-
-def generate_and_store_key(n, file_path):
+def generate_and_store_key(n, file_path, algorithm: Algorithm):
     p = None
     q = None
 
     # 1. Step.
     seed = 1
     while p == q:
-        p = generate_prime_miller_rabin_bitsize(n, 10, seed)
-        seed += 1
-        q = generate_prime_miller_rabin_bitsize(n, 10, seed)
-        seed += 1
+        if algorithm == Algorithm.NAIVE:
+            p = generate_prime_naive(n, seed)
+            seed += 1
+            q = generate_prime_naive(n, seed)
+            seed += 1
+
+        elif algorithm == Algorithm.MILLER_RABIN:
+            p = generate_prime_miller_rabin_bitsize(n, 10, seed)
+            seed += 1
+            q = generate_prime_miller_rabin_bitsize(n, 10, seed)
+            seed += 1
 
     # 2. Step.
     n = p * q
@@ -209,4 +173,25 @@ def generate_and_store_key(n, file_path):
         seed += 1
 
     # 4. Step.
-    print(modular_linear_equation_solver(e, 1, euler))
+    d = modular_linear_equation_solver(e, 1, euler)[-1]
+
+    if d is None:
+        print("Modular linear equation solver couldnt find the result.")
+        return
+
+    # 5. Step.
+    p_key = e, n
+    s_key = d, n
+
+    write_key_to_file(p_key, file_path + "/" + PUBLIC_KEY_FILE_NAME)
+    write_key_to_file(s_key, file_path + "/" + PRIVATE_KEY_FILE_NAME)
+
+
+def encrypt_file_with_key(folder_path, key_path):
+    p_key = read_key_from_file(key_path + "/" + PUBLIC_KEY_FILE_NAME)
+    s_key = read_key_from_file(key_path + "/" + PRIVATE_KEY_FILE_NAME)
+
+    e, n = p_key
+    s, n = s_key
+
+    #c = big_modular_exponantion(int(M), int(e), int(n))  # TODO Fix modular_exponentiation(int(a), int(d), int(p))
