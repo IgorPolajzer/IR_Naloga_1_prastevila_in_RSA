@@ -24,9 +24,28 @@ def random(x, y, ro, size=1000000):
     a = 69069
     b = 0
 
-    numbers = lcg(m, a, b, ro, size)
+    numbers = 0
+    # Check if we need large number generation
+    if y > (pow(2, 32) - 1):
+        # Calculate chunks
+        bit_size = y.bit_length()
+        chunks = (bit_size + 31) // 32
 
-    # Vectorized Normalization.
+        # Generate chunks + 1 numbers
+        chunk_array  = lcg(m, a, b, ro, chunks + 1)[1:] # Skip the seed
+
+        # Combine chunks
+        result = 0
+        for num in reversed(chunk_array):
+            result  = (numbers << 32) | int(num)
+
+        # Cast to numpy array to remain compatible with other parts of the system
+        numbers = np.array([result], dtype=object)
+    else:
+        # Standard vectorized generation
+        numbers = lcg(m, a, b, ro, size)
+
+    # Vectorized Normalization
     numbers = x + (numbers % (y - x + 1))
 
     return numbers

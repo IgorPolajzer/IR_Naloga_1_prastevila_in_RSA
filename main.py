@@ -52,14 +52,14 @@ def test_naive_gui():
 
 
 def test_miller_rabin_gui():
-    global p_input, s_input, seed
+    global p_input, s_input
     try:
         p = int(p_input.get())
         s = int(s_input.get())
-        result = is_prime_miller_rabin(p, s, int(seed.get()))
+        result = is_prime_miller_rabin(p, s, 1)
         result_var.set(f"Naive Test Result: {result}")
     except ValueError:
-        result_var.set("Invalid input for 'Number', 'Seed' or 'Reliability'")
+        result_var.set("Invalid input for 'Number' or 'Reliability'")
 
 
 def generate_naive_prime_gui():
@@ -219,20 +219,14 @@ def plot_encryption_gui():
         avg_enc_execution_times.append(sum(enc_execution_times) / len(enc_execution_times))
         avg_dec_execution_times.append(sum(dec_execution_times) / len(dec_execution_times))
 
-    # Plot encryption times
-    plt.plot(bit_sizes, avg_enc_execution_times, label="Encryption Time", marker='o')
-    plt.xlabel('Bit Size of RSA Key')
-    plt.ylabel('Time (seconds)')
-    plt.title('RSA Encryption Time vs Bit Size')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+    # Plot encryption/decryption times
+    plt.figure(figsize=(10, 6))  # Opcijsko: večja slika
+    plt.plot(bit_sizes, avg_enc_execution_times, label="Encryption Time", marker='o', color='blue')
+    plt.plot(bit_sizes, avg_dec_execution_times, label="Decryption Time", marker='s', color='orange')
 
-    # Plot decryption times
-    plt.plot(bit_sizes, avg_dec_execution_times, label="Decryption Time", marker='o', color='orange')
-    plt.xlabel('Bit Size of RSA Key')
+    plt.xlabel('Bit Size of RSA Key and encrypted number')
     plt.ylabel('Time (seconds)')
-    plt.title('RSA Decryption Time vs Bit Size')
+    plt.title('RSA Encryption & Decryption Time vs Bit Size')
     plt.grid(True)
     plt.legend()
     plt.show()
@@ -333,7 +327,7 @@ if __name__ == "__main__":
     Button(button_frame, text='Test Miller-Rabin', width=25, command=test_miller_rabin_gui).pack(pady=5)
     Button(button_frame, text='Generate Naive', width=25, command=generate_naive_prime_gui).pack(pady=5)
     Button(button_frame, text='Generate Miller-Rabin', width=25, command=generate_miller_rabin_prime_gui).pack(pady=5)
-    Button(button_frame, text='Generate Key', width=25, command=generate_rsa_key_gui).pack(pady=5)
+    Button(button_frame, text='Generate Keys', width=25, command=generate_rsa_key_gui).pack(pady=5)
     Button(button_frame, text='Encrypt file', width=25, command=encrypt_file_gui).pack(pady=5)
     Button(button_frame, text='Decrypt file', width=25, command=decrypt_file_gui).pack(pady=5)
 
