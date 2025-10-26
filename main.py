@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import filedialog
+
 from matplotlib import pyplot as plt
 from functions import *
 import time
@@ -47,14 +49,14 @@ def test_number_naive():
 
 
 def test_number_miller_rabin():
-    global p_input, s_input
+    global p_input, s_input, seed
     try:
         p = int(p_input.get())
         s = int(s_input.get())
-        result = miller_rabin_test(p, s)
+        result = miller_rabin_test(p, s, int(seed.get()))
         result_var.set(f"Naive Test Result: {result}")
     except ValueError:
-        result_var.set("Invalid input for 'Number' or 'Reliability'")
+        result_var.set("Invalid input for 'Number', 'Seed' or 'Reliability'")
 
 
 def generate_naive():
@@ -71,7 +73,7 @@ def generate_miller_rabin():
     try:
         n = int(n_input.get())
         s = int(s_input.get())
-        p = generate_prime_miller_rabin(n, s)
+        p = generate_prime_miller_rabin_bitsize(n, s)
         result_var.set(f"Generated number: {p}")
     except ValueError:
         result_var.set("Invalid input for 'Max number of bits' or 'Reliability'")
@@ -102,7 +104,7 @@ def measure_time_and_plot():
             if naive_var.get():
                 total_numbers += generate_prime_naive(i)
             elif miller_rabin_var.get():
-                total_numbers += generate_prime_miller_rabin(i, 10)
+                total_numbers += generate_prime_miller_rabin_bitsize(i, 10)
 
             total_time += (time.time() - start)
 
@@ -112,6 +114,17 @@ def measure_time_and_plot():
     plt.plot(numbers_avg, time_avg)
     plt.show()
 
+def generate_key():
+    global n_input
+
+    try:
+        filename = filedialog.askdirectory()
+
+        n = int(n_input.get())
+        generate_and_store_key(n, filename)
+        result_var.set(f"Key stored in file: {filename}")
+    except ValueError:
+        result_var.set("Invalid input for 'Max number of bits''")
 
 
 if __name__ == "__main__":
@@ -162,6 +175,7 @@ if __name__ == "__main__":
     Button(button_frame, text='Test Miller-Rabin', width=25, command=test_number_miller_rabin).pack(pady=5)
     Button(button_frame, text='Generate Naive', width=25, command=generate_naive).pack(pady=5)
     Button(button_frame, text='Generate Miller-Rabin', width=25, command=generate_miller_rabin).pack(pady=5)
+    Button(button_frame, text='Generate Key', width=25, command=generate_key).pack(pady=5)
 
     # Measure Time and Plot Frame.
     plot_frame = Frame(button_frame, padx=10, pady=10)

@@ -1,8 +1,9 @@
-from math import sqrt
+from math import sqrt, gcd
 
 import numpy as np
 
 NUMBERS_COUNT = 100
+
 
 def lcg(m, a, b, ro, size):
     r = np.zeros(size, dtype=np.uint64)
@@ -64,12 +65,12 @@ def generate_prime_naive(n):
         p, result = naive_test(p)
 
         if result == "PRIME":
-            return p
+            return int(p)
 
         p += 2
 
 
-def miller_rabin_test(p, s):
+def miller_rabin_test(p, s, ro):
     if p <= 3:
         return "PRIME"
     if p % 2 == 0:
@@ -81,11 +82,13 @@ def miller_rabin_test(p, s):
         d //= 2
         k += 1
 
-    for _ in range(s):
-        a = random(2, p - 2, 1, NUMBERS_COUNT)[-1]
-        x = modular_exponentiation(a, d, p)
+    seed = ro
+    for i in range(s):
+        a = random(2, p - 2, seed, NUMBERS_COUNT)[-1]
+        x = pow(int(a), int(d), int(p))  # modular_exponentiation(int(a), int(d), int(p))
 
         if x == 1 or x == p - 1:
+            seed += 1
             continue
 
         for _ in range(k - 1):
@@ -95,25 +98,40 @@ def miller_rabin_test(p, s):
         else:
             return "COMPOSITE"
 
+        seed += 1
+
     return "PROBABLY_PRIME"
 
 
-def generate_prime_miller_rabin(n, s):
+def generate_prime_miller_rabin_bitsize(n, s, ro=1):
     # Calculate the maximum value for an n-bit number
     max_value = pow(2, n) - 1
 
     # Generate random number.
-    p = random(0, max_value, 1, NUMBERS_COUNT)[-1]
+    p = random(0, max_value, ro, NUMBERS_COUNT)[-1]
 
     if p % 2 == 0:
         p += 1
 
     while True:
-        j = 3
-
-        output = miller_rabin_test(p, s)
+        output = miller_rabin_test(p, s, ro)
         if output == "PRIME" or output == "PROBABLY_PRIME":
-            return p
+            return int(p)
+
+        p += 2
+
+
+def generate_prime_miller_rabin_interval(s, min, max, ro=1):
+    # Generate random number.
+    p = random(min, max, ro, NUMBERS_COUNT)[-1]
+
+    if p % 2 == 0:
+        p += 1
+
+    while True:
+        output = miller_rabin_test(p, s, ro)
+        if output == "PRIME" or output == "PROBABLY_PRIME":
+            return int(p)
 
         p += 2
 
@@ -138,3 +156,58 @@ def int_to_binary_array(integer: int) -> list:
 
     # Use list comprehension to create the bit array
     return [int(bit) for bit in binary_string]
+
+
+def extended_euclid(a, b, d=0, x=0, y=0):
+    if b == 0:
+        d = a
+        x = 1
+        y = 0
+
+    else:
+        d, x, y = extended_euclid(b, a % b, d, x, y)
+        y = x - (a / b) * y
+
+    return d, x, y
+
+
+def modular_linear_equation_solver(a, b, n):
+    d, x, y = 0, 0, 0
+    d, x, y = extended_euclid(a, n, d, x, y)
+
+    if d % b == 0:
+        xo = x * (b / d) % n
+
+        for i in range(0, d):
+            print(xo + i * (n / d) % n)
+
+    else:
+        print("Solution doesnt exist.")
+
+
+def generate_and_store_key(n, file_path):
+    p = None
+    q = None
+
+    # 1. Step.
+    seed = 1
+    while p == q:
+        p = generate_prime_miller_rabin_bitsize(n, 10, seed)
+        seed += 1
+        q = generate_prime_miller_rabin_bitsize(n, 10, seed)
+        seed += 1
+
+    # 2. Step.
+    n = p * q
+    euler = (p - 1) * (q - 1)
+
+    # 3. Step.
+    e = generate_prime_miller_rabin_interval(1, euler, seed)
+    seed += 1
+
+    while gcd(e, euler) > 1:
+        e = generate_prime_miller_rabin_interval(1, euler, seed)
+        seed += 1
+
+    # 4. Step.
+    modular_linear_equation_solver(e, 1, euler)
