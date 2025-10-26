@@ -7,8 +7,7 @@ from util import *
 NUMBERS_COUNT = 100
 PUBLIC_KEY_FILE_NAME = r"\privkey.txt"
 PRIVATE_KEY_FILE_NAME = r"\pubkey.txt"
-
-
+seed = 1
 def lcg(m, a, b, ro, size):
     r = np.zeros(size, dtype=np.uint64)
     r[0] = ro
@@ -33,7 +32,7 @@ def random(x, y, ro, size=1000000):
     return numbers
 
 
-def naive_test(p):
+def is_prime_naive(p):
     if p < 2:
         return p, "COMPOSITE"
     if p == 2:
@@ -54,7 +53,7 @@ def naive_test(p):
         return p, "COMPOSITE"
 
 
-def generate_prime_naive(n, ro=1):
+def generate_prime_naive_method(n, ro=1):
     # Calculate the maximum value for an n-bit number
     max_value = pow(2, n) - 1
 
@@ -66,7 +65,7 @@ def generate_prime_naive(n, ro=1):
 
     while True:
 
-        p, result = naive_test(p)
+        p, result = is_prime_naive(p)
 
         if result == "PRIME":
             return int(p)
@@ -74,7 +73,7 @@ def generate_prime_naive(n, ro=1):
         p += 2
 
 
-def miller_rabin_test(p, s, ro):
+def is_prime_miller_rabin(p, s, ro):
     if p <= 3:
         return "PRIME"
     if p % 2 == 0:
@@ -107,7 +106,7 @@ def miller_rabin_test(p, s, ro):
     return "PROBABLY_PRIME"
 
 
-def generate_prime_miller_rabin_bitsize(n, s, ro=1):
+def generate_prime_miller_rabin(n, s, ro=1):
     # Calculate the maximum value for an n-bit number
     max_value = pow(2, n) - 1
 
@@ -118,14 +117,14 @@ def generate_prime_miller_rabin_bitsize(n, s, ro=1):
         p += 1
 
     while True:
-        output = miller_rabin_test(p, s, ro)
+        output = is_prime_miller_rabin(p, s, ro)
         if output == "PRIME" or output == "PROBABLY_PRIME":
             return int(p)
 
         p += 2
 
 
-def generate_prime_miller_rabin_interval(s, min, max, ro=1):
+def generate_prime_in_interval(s, min, max, ro=1):
     # Generate random number.
     p = random(min, max, ro, NUMBERS_COUNT)[-1]
 
@@ -133,42 +132,50 @@ def generate_prime_miller_rabin_interval(s, min, max, ro=1):
         p += 1
 
     while True:
-        output = miller_rabin_test(p, s, ro)
+        output = is_prime_miller_rabin(p, s, ro)
         if output == "PRIME" or output == "PROBABLY_PRIME":
             return int(p)
 
         p += 2
 
 
-def generate_and_store_key(n, file_path, algorithm: Algorithm):
+def generate_rsa_key_pair(n, algorithm: Algorithm):
+    global seed
     p = None
     q = None
 
-    # 1. Step.
-    seed = 1
     while p == q:
         if algorithm == Algorithm.NAIVE:
-            p = generate_prime_naive(n, seed)
+            p = generate_prime_naive_method(n, seed)
             seed += 1
-            q = generate_prime_naive(n, seed)
+            q = generate_prime_naive_method(n, seed)
             seed += 1
 
         elif algorithm == Algorithm.MILLER_RABIN:
-            p = generate_prime_miller_rabin_bitsize(n, 10, seed)
+            p = generate_prime_miller_rabin(n, 10, seed)
             seed += 1
-            q = generate_prime_miller_rabin_bitsize(n, 10, seed)
+            q = generate_prime_miller_rabin(n, 10, seed)
             seed += 1
+
+    return p, q
+
+
+def store_rsa_keys(n, file_path, algorithm: Algorithm):
+    global seed
+
+    # 1. Step.
+    p, q = generate_rsa_key_pair(n, algorithm)
 
     # 2. Step.
     n = p * q
     euler = (p - 1) * (q - 1)
 
     # 3. Step.
-    e = generate_prime_miller_rabin_interval(1, euler, seed)
+    e = generate_prime_in_interval(1, euler, seed)
     seed += 1
 
     while gcd(e, euler) > 1:
-        e = generate_prime_miller_rabin_interval(1, euler, seed)
+        e = generate_prime_in_interval(1, euler, seed)
         seed += 1
 
     # 4. Step.
@@ -186,11 +193,11 @@ def generate_and_store_key(n, file_path, algorithm: Algorithm):
     write_key_to_file(s_key, file_path + PRIVATE_KEY_FILE_NAME)
 
 
-def encrypt_file_with_key(file_path, key_path):
+def rsa_encrypt_file(file_path, key_path):
     p_key = read_key_from_file(key_path + PUBLIC_KEY_FILE_NAME)
     encrypt_and_write_file(file_path, p_key)
 
 
-def decrypt_file_with_key(file_path, key_path):
+def rsa_decrypt_file(file_path, key_path):
     s_key = read_key_from_file(key_path + PRIVATE_KEY_FILE_NAME)
     decrypt_and_write_file(file_path, s_key)

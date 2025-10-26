@@ -148,7 +148,7 @@ def decrypt_and_write_file(file_path: str, s_key):
     bits_in_buffer = 0  # Number of bits in buffer
 
     with open(
-            r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\decrypted_files\msg.png",
+            r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\decrypted_files\msg.bin",
             "wb") as file:
 
         for m in m_chunks:

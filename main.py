@@ -5,7 +5,7 @@ from tkinter import filedialog
 from matplotlib import pyplot as plt
 
 from clear import directories, clear_directory
-from cryptography import *
+from algorithm import *
 import time
 
 import matplotlib
@@ -13,7 +13,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 
-def generate_number():
+def generate_random_number_gui():
     global seed, min_val, max_val
 
     try:
@@ -24,7 +24,7 @@ def generate_number():
         result_var.set("Invalid input for 'Seed', 'Min number' or 'Max number'")
 
 
-def generate_and_show():
+def generate_histogram_gui():
     global seed, min_val, max_val
 
     try:
@@ -33,7 +33,7 @@ def generate_and_show():
 
             hist, bins = np.histogram(numbers, bins=int(max_val.get()), range=(int(min_val.get()), int(max_val.get())))
             plt.bar(bins[:-1], hist, width=np.diff(bins), edgecolor='black', alpha=0.7)
-            plt.title("Hystogram of LCG generated numbers")
+            plt.title("Histogram of LCG generated numbers")
             plt.xlabel("Value")
             plt.ylabel("Frequency")
             plt.show()
@@ -41,49 +41,49 @@ def generate_and_show():
         result_var.set("Invalid input for 'Seed', 'Min number' or 'Max number'")
 
 
-def test_number_naive():
+def test_naive_gui():
     global p_input
     try:
         p = int(p_input.get())
-        p, result = naive_test(p)
+        p, result = is_prime_naive(p)
         result_var.set(f"Naive Test Result: {result}")
     except ValueError:
         result_var.set("Invalid input for 'Number'")
 
 
-def test_number_miller_rabin():
+def test_miller_rabin_gui():
     global p_input, s_input, seed
     try:
         p = int(p_input.get())
         s = int(s_input.get())
-        result = miller_rabin_test(p, s, int(seed.get()))
+        result = is_prime_miller_rabin(p, s, int(seed.get()))
         result_var.set(f"Naive Test Result: {result}")
     except ValueError:
         result_var.set("Invalid input for 'Number', 'Seed' or 'Reliability'")
 
 
-def generate_naive():
+def generate_naive_prime_gui():
     global n_input
     try:
         n = int(n_input.get())
-        p = generate_prime_naive(n)
+        p = generate_prime_naive_method(n)
         result_var.set(f"Generated number: {p}")
     except ValueError:
         result_var.set("Invalid input for 'Max number of bits'")
 
 
-def generate_miller_rabin():
+def generate_miller_rabin_prime_gui():
     global n_input, s_input
     try:
         n = int(n_input.get())
         s = int(s_input.get())
-        p = generate_prime_miller_rabin_bitsize(n, s)
+        p = generate_prime_miller_rabin(n, s)
         result_var.set(f"Generated number: {p}")
     except ValueError:
         result_var.set("Invalid input for 'Max number of bits' or 'Reliability'")
 
 
-def measure_time_and_plot():
+def plot_generation_time_gui():
     global naive_var, miller_rabin_var
 
     if naive_var.get() and miller_rabin_var.get():
@@ -106,9 +106,9 @@ def measure_time_and_plot():
             start = time.time()
 
             if naive_var.get():
-                total_numbers += generate_prime_naive(i)
+                total_numbers += generate_prime_naive_method(i)
             elif miller_rabin_var.get():
-                total_numbers += generate_prime_miller_rabin_bitsize(i, 10)
+                total_numbers += generate_prime_miller_rabin(i, 10)
 
             total_time += (time.time() - start)
 
@@ -119,7 +119,7 @@ def measure_time_and_plot():
     plt.show()
 
 
-def generate_key():
+def generate_rsa_key_gui():
     global n_input, naive_var, miller_rabin_var
 
     try:
@@ -127,10 +127,6 @@ def generate_key():
         file_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\keys"
 
         n = int(n_input.get())
-
-        if n > 15:
-            result_var.set("The maximum number of bits for keys is 15.")
-            return
 
         if naive_var.get() and miller_rabin_var.get():
             result_var.set("Only one algortihm at a time can be selected.")
@@ -141,18 +137,107 @@ def generate_key():
             return
 
         if naive_var.get():
-            generate_and_store_key(n, file_path, Algorithm.NAIVE)
+            store_rsa_keys(n, file_path, Algorithm.NAIVE)
             result_var.set(f"Keys generated with Naive method stored in folder: {file_path}")
 
         elif miller_rabin_var.get():
-            generate_and_store_key(n, file_path, Algorithm.MILLER_RABIN)
+            store_rsa_keys(n, file_path, Algorithm.MILLER_RABIN)
             result_var.set(f"Keys generated with Miller-Rabin method and stored in folder: {file_path}")
 
     except ValueError:
         result_var.set("Invalid input for 'Max number of bits''")
 
 
-def encrypt_file():
+def plot_key_generation_gui():
+    global naive_var, miller_rabin_var
+
+    if naive_var.get() and miller_rabin_var.get():
+        result_var.set("Only one algortihm at a time can be selected.")
+        return
+
+    if not naive_var.get() and not miller_rabin_var.get():
+        result_var.set("An algorithm has to be selected.")
+        return
+
+    execution_times = []
+    bit_size = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+    for i in bit_size:
+        start_time = time.time()
+        if naive_var.get():
+            generate_rsa_key_pair(i, Algorithm.NAIVE)
+
+        elif miller_rabin_var.get():
+            generate_rsa_key_pair(i, Algorithm.MILLER_RABIN)
+        execution_times.append(time.time() - start_time)
+
+    plt.plot(bit_size, execution_times)
+    plt.xlabel('Histogram of RSA Key generation')
+    plt.ylabel('Time (seconds)')
+    plt.title('Bit size of RSA key')
+    plt.show()
+
+
+def plot_encryption_gui():
+
+    avg_enc_execution_times = []
+    avg_dec_execution_times = []
+    key_folder_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\keys"
+    file_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\test_files\number.txt"
+
+    bit_sizes = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    ro = 1
+
+    for n in bit_sizes:
+        store_rsa_keys(n, key_folder_path, Algorithm.NAIVE)
+
+        iterations = 10
+        enc_execution_times = []
+        dec_execution_times = []
+
+        for _ in range(iterations):
+            # Generate a random number within the range for the current bit size
+            max_range = pow(2, n) - 1
+            number = random(0, max_range, ro, NUMBERS_COUNT)[-1]
+            ro += 1
+
+            # Write the random number to a file in binary format
+            with open(file_path, 'wb') as fp:
+                fp.write(number)
+
+            # Measure encryption time
+            start_encrypt_time = time.time()
+            rsa_encrypt_file(file_path, key_folder_path)
+            enc_execution_times.append(time.time() - start_encrypt_time)
+
+            # Measure decryption time
+            start_decrypt_time = time.time()
+            rsa_decrypt_file(file_path, key_folder_path)
+            dec_execution_times.append(time.time() - start_decrypt_time)
+
+        # Calculate average times for the current bit size
+        avg_enc_execution_times.append(sum(enc_execution_times) / len(enc_execution_times))
+        avg_dec_execution_times.append(sum(dec_execution_times) / len(dec_execution_times))
+
+    # Plot encryption times
+    plt.plot(bit_sizes, avg_enc_execution_times, label="Encryption Time", marker='o')
+    plt.xlabel('Bit Size of RSA Key')
+    plt.ylabel('Time (seconds)')
+    plt.title('RSA Encryption Time vs Bit Size')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+    # Plot decryption times
+    plt.plot(bit_sizes, avg_dec_execution_times, label="Decryption Time", marker='o', color='orange')
+    plt.xlabel('Bit Size of RSA Key')
+    plt.ylabel('Time (seconds)')
+    plt.title('RSA Decryption Time vs Bit Size')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+def encrypt_file_gui():
     file_path = filedialog.askopenfilename()
 
     # key_folder_path = filedialog.askdirectory()
@@ -163,10 +248,11 @@ def encrypt_file():
         result_var.set(f"Private or public key not present in ${key_folder_path}")
         return
 
-    encrypt_file_with_key(file_path, key_folder_path)
+    rsa_encrypt_file(file_path, key_folder_path)
     result_var.set(f"File: '{file_path}' was encrypted.")
 
-def decrypt_file():
+
+def decrypt_file_gui():
     # file_path = filedialog.askopenfilename()
     file_path = r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\encryptet_files\enc.bin"
 
@@ -182,21 +268,22 @@ def decrypt_file():
         result_var.set(f"The file you are trying to decode doesnt exist")
         return
 
-    decrypt_file_with_key(file_path, key_folder_path)
+    rsa_decrypt_file(file_path, key_folder_path)
     result_var.set(f"File: '{file_path}' was decrypted.")
 
 
-def clean_folders_through_gui():
+def clear_directories_gui():
     for dir_path in directories:
         clear_directory(dir_path)
 
     result_var.set("Directories cleared successfully.")
 
+
 if __name__ == "__main__":
     root = Tk()
 
     root.title("Prime number generator")
-    root.geometry('700x900')
+    root.geometry('700x1000')
 
     # Title.
     title = Label(root, text="Prime number generator", font=("Arial", 14, "bold"))
@@ -240,15 +327,15 @@ if __name__ == "__main__":
     button_frame = Frame(root, padx=10, pady=10)
     button_frame.pack(anchor="center")
 
-    Button(button_frame, text='Generate Random Number', width=25, command=generate_number).pack(pady=5)
-    Button(button_frame, text='Generate Histogram', width=25, command=generate_and_show).pack(pady=5)
-    Button(button_frame, text='Test Naive', width=25, command=test_number_naive).pack(pady=5)
-    Button(button_frame, text='Test Miller-Rabin', width=25, command=test_number_miller_rabin).pack(pady=5)
-    Button(button_frame, text='Generate Naive', width=25, command=generate_naive).pack(pady=5)
-    Button(button_frame, text='Generate Miller-Rabin', width=25, command=generate_miller_rabin).pack(pady=5)
-    Button(button_frame, text='Generate Key', width=25, command=generate_key).pack(pady=5)
-    Button(button_frame, text='Encrypt file', width=25, command=encrypt_file).pack(pady=5)
-    Button(button_frame, text='Decrypt file', width=25, command=decrypt_file).pack(pady=5)
+    Button(button_frame, text='Generate Random Number', width=25, command=generate_random_number_gui).pack(pady=5)
+    Button(button_frame, text='Generate Histogram', width=25, command=generate_histogram_gui).pack(pady=5)
+    Button(button_frame, text='Test Naive', width=25, command=test_naive_gui).pack(pady=5)
+    Button(button_frame, text='Test Miller-Rabin', width=25, command=test_miller_rabin_gui).pack(pady=5)
+    Button(button_frame, text='Generate Naive', width=25, command=generate_naive_prime_gui).pack(pady=5)
+    Button(button_frame, text='Generate Miller-Rabin', width=25, command=generate_miller_rabin_prime_gui).pack(pady=5)
+    Button(button_frame, text='Generate Key', width=25, command=generate_rsa_key_gui).pack(pady=5)
+    Button(button_frame, text='Encrypt file', width=25, command=encrypt_file_gui).pack(pady=5)
+    Button(button_frame, text='Decrypt file', width=25, command=decrypt_file_gui).pack(pady=5)
 
     # Measure Time and Plot Frame.
     plot_frame = Frame(button_frame, padx=10, pady=10)
@@ -257,7 +344,9 @@ if __name__ == "__main__":
     naive_var = IntVar()
     miller_rabin_var = IntVar()
 
-    Button(plot_frame, text='Measure Time and Plot', width=25, command=measure_time_and_plot).pack(pady=5)
+    Button(plot_frame, text='Prime Generation Histogram', width=25, command=plot_generation_time_gui).pack(pady=5)
+    Button(plot_frame, text='Key Generation Histogram', width=25, command=plot_key_generation_gui).pack(pady=5)
+    Button(plot_frame, text='Encryption/Decryption Histogram', width=25, command=plot_encryption_gui).pack(pady=5)
 
     # Checkbox frame to center checkboxes
     checkbox_frame = Frame(plot_frame)
@@ -265,7 +354,7 @@ if __name__ == "__main__":
     Checkbutton(checkbox_frame, text="Naive", variable=naive_var).pack(side=LEFT, padx=5)
     Checkbutton(checkbox_frame, text="Miller-Rabin", variable=miller_rabin_var).pack(side=LEFT, padx=5)
 
-    Button(button_frame, text='Clear folders', width=25, command=clean_folders_through_gui).pack(pady=5)
+    Button(button_frame, text='Clear folders', width=25, command=clear_directories_gui).pack(pady=5)
     Button(button_frame, text='Exit', width=25, command=root.destroy).pack(pady=5)
 
     # Output Label
