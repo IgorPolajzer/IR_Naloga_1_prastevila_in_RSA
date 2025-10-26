@@ -1,27 +1,14 @@
 from math import ceil, log, floor
 
 
-def modular_exponentiation(a, b, n) -> int:
-    d = 1
-    bodi = int_to_binary_array(b)  # Convert b to binary array
-
-    # Iterate from the most significant bit to the least significant bit
-    for i in range(len(bodi), 0, -1):
-        d = (d * d) % n
-        if bodi[i - 1] == 1:
-            d = (d * a) % n
-
-    return d
-
-
-def big_modular_exponantion(a, b, n) -> int:
+def modular_exponantion(a, b, n) -> int:
     d = 1
     bodi = int_to_binary_array(b)
 
-    for i in range(len(bodi), 0, -1):
+    for b in bodi[::-1]:
         d = pow(d, 2) % n
 
-        if bodi[i] == 1:
+        if b == 1:
             d = (d * a) % n
 
     return d
@@ -135,7 +122,7 @@ def encrypt_and_write_file(file_path: str, p_key):
             r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\encryptet_files\enc.bin",
             "wb") as binary_file:
         for chunk in chunks:
-            c = pow(chunk, e, n)
+            c = pow(chunk, e, n)  # modular_exponantion(chunk, e, n)
             binary_file.write(c.to_bytes(N_bytes, 'big'))
 
 
@@ -151,6 +138,7 @@ def decrypt_and_write_file(file_path: str, s_key):
 
     m_chunks = []
 
+    # Decrypt by chunks
     with open(file_path, "rb") as binary_file:
         while True:
             chunk_bytes = binary_file.read(N_bytes)
@@ -158,7 +146,7 @@ def decrypt_and_write_file(file_path: str, s_key):
                 break
 
             c = int.from_bytes(chunk_bytes, 'big')
-            m = pow(c, d, n)
+            m = pow(c, d, n)  # modular_exponantion(c, d, n)
             m_chunks.append(m)
 
     # Write decrypted chunks back
@@ -168,7 +156,7 @@ def decrypt_and_write_file(file_path: str, s_key):
         for i, m in enumerate(m_chunks):
             # Handle last chunk (might be shorter)
             if i == len(m_chunks) - 1:
-                actual_bytes = max(1, (m.bit_length() + 7) // 8)
+                actual_bytes = max(M_bytes, (m.bit_length() + 7) // 8)
                 file.write(m.to_bytes(actual_bytes, 'big'))
             else:
                 file.write(m.to_bytes(M_bytes, 'big'))

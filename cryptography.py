@@ -2,12 +2,11 @@ from math import sqrt, gcd, log, ceil, floor
 
 import numpy as np
 
-from util import modular_linear_equation_solver, write_key_to_file, read_key_from_file, big_modular_exponantion, \
-    Algorithm, read_file_in_binary, encrypt_and_write_file, decrypt_and_write_file
+from util import *
 
 NUMBERS_COUNT = 100
-PUBLIC_KEY_FILE_NAME = "\privkey.txt"
-PRIVATE_KEY_FILE_NAME = "\pubkey.txt"
+PUBLIC_KEY_FILE_NAME = r"\privkey.txt"
+PRIVATE_KEY_FILE_NAME = r"\pubkey.txt"
 
 
 def lcg(m, a, b, ro, size):
@@ -90,7 +89,7 @@ def miller_rabin_test(p, s, ro):
     seed = ro
     for i in range(s):
         a = random(2, p - 2, seed, NUMBERS_COUNT)[-1]
-        x = pow(int(a), int(d), int(p))  # TODO Fix modular_exponentiation(int(a), int(d), int(p))
+        x = pow(int(a), int(d), int(p))  # modular_exponantion(int(a), int(d), int(p))
 
         if x == 1 or x == p - 1:
             seed += 1
@@ -195,8 +194,3 @@ def encrypt_file_with_key(file_path, key_path):
 def decrypt_file_with_key(file_path, key_path):
     s_key = read_key_from_file(key_path + PRIVATE_KEY_FILE_NAME)
     decrypt_and_write_file(file_path, s_key)
-
-
-
-
-
