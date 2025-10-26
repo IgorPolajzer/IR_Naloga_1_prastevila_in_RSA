@@ -158,31 +158,30 @@ def int_to_binary_array(integer: int) -> list:
     return [int(bit) for bit in binary_string]
 
 
-def extended_euclid(a, b, d=0, x=0, y=0):
+def extended_euclid(a, b):
     if b == 0:
-        d = a
-        x = 1
-        y = 0
-
+        return a, 1, 0
     else:
-        d, x, y = extended_euclid(b, a % b, d, x, y)
-        y = x - (a / b) * y
+        d, x, y = extended_euclid(b, a % b)
 
-    return d, x, y
+        # n_d, n_x, n_y.
+        return d, y, x - (a // b) * y
 
 
 def modular_linear_equation_solver(a, b, n):
-    d, x, y = 0, 0, 0
-    d, x, y = extended_euclid(a, n, d, x, y)
+    d, x, y = extended_euclid(a, n)
 
-    if d % b == 0:
-        xo = x * (b / d) % n
+    if b % d == 0:
+        xo = (x * (b // d)) % n
 
-        for i in range(0, d):
-            print(xo + i * (n / d) % n)
+        solutions = []
+        for i in range(d):
+            solution = (xo + i * (n // d)) % n
+            solutions.append(solution)
 
+        return solutions
     else:
-        print("Solution doesnt exist.")
+        return None
 
 
 def generate_and_store_key(n, file_path):
@@ -210,4 +209,4 @@ def generate_and_store_key(n, file_path):
         seed += 1
 
     # 4. Step.
-    modular_linear_equation_solver(e, 1, euler)
+    print(modular_linear_equation_solver(e, 1, euler))
