@@ -1,13 +1,13 @@
-from math import sqrt, gcd
+from math import sqrt, gcd, log, ceil, floor
 
 import numpy as np
 
 from util import modular_linear_equation_solver, write_key_to_file, read_key_from_file, big_modular_exponantion, \
-    Algorithm
+    Algorithm, read_file_in_binary, encrypt_and_write_file, decrypt_and_write_file
 
 NUMBERS_COUNT = 100
-PUBLIC_KEY_FILE_NAME = "privkey.txt"
-PRIVATE_KEY_FILE_NAME = "pubkey.txt"
+PUBLIC_KEY_FILE_NAME = "\privkey.txt"
+PRIVATE_KEY_FILE_NAME = "\pubkey.txt"
 
 
 def lcg(m, a, b, ro, size):
@@ -183,15 +183,18 @@ def generate_and_store_key(n, file_path, algorithm: Algorithm):
     p_key = e, n
     s_key = d, n
 
-    write_key_to_file(p_key, file_path + "/" + PUBLIC_KEY_FILE_NAME)
-    write_key_to_file(s_key, file_path + "/" + PRIVATE_KEY_FILE_NAME)
+    write_key_to_file(p_key, file_path + PUBLIC_KEY_FILE_NAME)
+    write_key_to_file(s_key, file_path + PRIVATE_KEY_FILE_NAME)
 
 
-def encrypt_file_with_key(folder_path, key_path):
-    p_key = read_key_from_file(key_path + "/" + PUBLIC_KEY_FILE_NAME)
-    s_key = read_key_from_file(key_path + "/" + PRIVATE_KEY_FILE_NAME)
+def encrypt_file_with_key(file_path, key_path):
+    p_key = read_key_from_file(key_path + PUBLIC_KEY_FILE_NAME)
+    s_key = read_key_from_file(key_path + PRIVATE_KEY_FILE_NAME)
 
-    e, n = p_key
-    s, n = s_key
+    encrypt_and_write_file(file_path, p_key)
+    decrypt_and_write_file(file_path, s_key)
 
-    #c = big_modular_exponantion(int(M), int(e), int(n))  # TODO Fix modular_exponentiation(int(a), int(d), int(p))
+
+
+
+
