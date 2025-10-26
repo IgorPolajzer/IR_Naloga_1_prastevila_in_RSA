@@ -3,6 +3,8 @@ from tkinter import *
 from tkinter import filedialog
 
 from matplotlib import pyplot as plt
+
+from clear import directories, clear_directory
 from cryptography import *
 import time
 
@@ -184,6 +186,12 @@ def decrypt_file():
     result_var.set(f"File: '{file_path}' was decrypted.")
 
 
+def clean_folders_through_gui():
+    for dir_path in directories:
+        clear_directory(dir_path)
+
+    result_var.set("Directories cleared successfully.")
+
 if __name__ == "__main__":
     root = Tk()
 
@@ -257,6 +265,7 @@ if __name__ == "__main__":
     Checkbutton(checkbox_frame, text="Naive", variable=naive_var).pack(side=LEFT, padx=5)
     Checkbutton(checkbox_frame, text="Miller-Rabin", variable=miller_rabin_var).pack(side=LEFT, padx=5)
 
+    Button(button_frame, text='Clear folders', width=25, command=clean_folders_through_gui).pack(pady=5)
     Button(button_frame, text='Exit', width=25, command=root.destroy).pack(pady=5)
 
     # Output Label

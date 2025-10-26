@@ -69,10 +69,6 @@ def read_key_from_file(file_path: str) -> tuple:
 
 
 def read_file_in_binary(file_path: str, bits) -> list:
-    # chunks = []
-    # with open(file_path, 'rb') as f:
-    #     return f.read()
-
     chunks = []
     bit_buffer = 0  # Buffer to store bits
     bits_in_buffer = 0  # Number of valid bits in buffer
@@ -133,12 +129,11 @@ def decrypt_and_write_file(file_path: str, s_key):
     N = ceil(log(n, 2))
 
     # Convert bits to bytes
-    M_bytes = ceil(M / 8)
     N_bytes = ceil(N / 8)
 
     m_chunks = []
 
-    # Decrypt by chunks
+    # Decrypt into M-bit chunks
     with open(file_path, "rb") as binary_file:
         while True:
             chunk_bytes = binary_file.read(N_bytes)
@@ -146,17 +141,37 @@ def decrypt_and_write_file(file_path: str, s_key):
                 break
 
             c = int.from_bytes(chunk_bytes, 'big')
-            m = pow(c, d, n)  # modular_exponantion(c, d, n)
+            m = pow(c, d, n)
             m_chunks.append(m)
 
-    # Write decrypted chunks back
+    bit_buffer = 0  # Bits to be written
+    bits_in_buffer = 0  # Number of bits in buffer
+
     with open(
             r"C:\MAG\1_LETNIK\1_SEMESTER\IZBRANI_ALGORITMI\Naloga_1_prastevila_in_RSA\IR_Naloga_1_prastevila_in_RSA\decrypted_files\msg.png",
             "wb") as file:
-        for i, m in enumerate(m_chunks):
-            # Handle last chunk (might be shorter)
-            if i == len(m_chunks) - 1:
-                actual_bytes = max(M_bytes, (m.bit_length() + 7) // 8)
-                file.write(m.to_bytes(actual_bytes, 'big'))
-            else:
-                file.write(m.to_bytes(M_bytes, 'big'))
+
+        for m in m_chunks:
+            bit_buffer = (bit_buffer << M) | m
+            bits_in_buffer += M
+
+            # When bits_in_buffer can be written as a byte
+            while bits_in_buffer >= 8:
+                # Bit shift needed to align the next byte to the right
+                shift_amount = bits_in_buffer - 8
+
+                # Extract the highest 8 bits
+                byte_to_write = (bit_buffer >> shift_amount) & 0xFF
+
+                # Write the complete byte to the file
+                file.write(byte_to_write.to_bytes(1, 'big'))
+
+                # Remove the 8 bits that were just written
+                bit_buffer &= (1 << shift_amount) - 1
+                bits_in_buffer -= 8
+
+        # Handle the remainder.
+        if bits_in_buffer > 0:
+            padding_bits = 8 - bits_in_buffer
+            final_byte = bit_buffer << padding_bits
+            file.write(final_byte.to_bytes(1, 'big'))
